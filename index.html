@@ -32,9 +32,7 @@
     position: relative;
     padding-bottom: 90px;
   }
-
-
-
+ 
   h1, h2, h3, h4, .serif { font-family: var(--font-serif); }
   .mono { font-family: var(--font-mono); }
   
@@ -51,7 +49,7 @@
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
   }
-
+ 
   /* Hero Section */
   .hero {
     text-align: center;
@@ -85,7 +83,7 @@
     border-radius: 2px 2px 0 0;
     box-shadow: inset -2px 0 5px rgba(0,0,0,0.1);
   }
-
+ 
   .book-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -148,7 +146,7 @@
     font-family: var(--font-sans);
   }
   .review-btn:hover { background: #059669; }
-
+ 
   /* Bottom Navigation */
   .bottom-nav {
     position: fixed;
@@ -208,7 +206,7 @@
     border-color: var(--accent);
     color: white;
   }
-
+ 
   /* Mailbox Styles */
   .mailbox-grid {
     display: grid;
@@ -263,6 +261,29 @@
     border-radius: 20px;
     display: inline-block;
   }
+ 
+  /* Reader back button */
+  .reader-back-btn {
+    background: white;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-bottom: 24px;
+    color: var(--muted);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border-radius: 9999px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    font-family: var(--font-sans);
+    transition: box-shadow 0.2s, color 0.2s;
+  }
+  .reader-back-btn:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.13);
+    color: var(--primary);
+  }
   
   /* Staggered Animation */
   .stagger-item {
@@ -276,7 +297,7 @@
 </style>
 </head>
 <body>
-
+ 
 <!-- SCREEN: HOME -->
 <div id="screen-home" class="screen">
   <div class="hero">
@@ -284,10 +305,9 @@
     <h1>Kho Tàng Truyện Cổ</h1>
     <p>Đọc truyện trực tiếp trên ứng dụng</p>
   </div>
-  
   <div class="book-grid" id="library-grid" style="padding-top: 20px;"></div>
 </div>
-
+ 
 <!-- SCREEN: SUGGESTIONS -->
 <div id="screen-suggestions" class="screen active">
   <div class="hero">
@@ -298,22 +318,24 @@
   <!-- Mailbox View -->
   <div id="mailbox-view">
     <div class="mailbox-grid">
-      <div class="mailbox-card" style="border-top: 8px solid var(--amber);" onclick="openMailbox('5-7')">
+      <div class="mailbox-card" style="border-top: 8px solid #F59E0B;" onclick="openMailbox('5-7')">
         <span class="mailbox-icon">👶</span>
-        <div class="mailbox-title">Làm Quen & Yêu Sách</div>
+        <div class="mailbox-title">Làm Quen &amp; Yêu Sách</div>
         <div class="mailbox-age">5-7 tuổi</div>
       </div>
-      <div class="mailbox-card" style="border-top: 8px solid var(--emerald);" onclick="openMailbox('8-10')">
+      <div class="mailbox-card" style="border-top: 8px solid #10B981;" onclick="openMailbox('8-10')">
         <span class="mailbox-icon">🧒</span>
-        <div class="mailbox-title">Tư Duy & Thói Quen</div>
+        <div class="mailbox-title">Tư Duy &amp; Thói Quen</div>
         <div class="mailbox-age">8-10 tuổi</div>
       </div>
-      <div class="mailbox-card" style="border-top: 8px solid var(--violet);" onclick="openMailbox('11-13')">
+      <div class="mailbox-card" style="border-top: 8px solid #8B5CF6;" onclick="openMailbox('11-15')">
         <span class="mailbox-icon">👦</span>
         <div class="mailbox-title">Mở Rộng Nhận Thức</div>
         <div class="mailbox-age">11-15 tuổi</div>
       </div>
-
+    </div>
+  </div>
+ 
   <!-- Books View -->
   <div id="suggestions-books-view" style="display: none;">
     <button onclick="closeMailbox()" style="background:none; border:none; font-size:1.1rem; cursor:pointer; margin-bottom:20px; color:var(--muted); font-weight: 700; display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 9999px; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
@@ -323,55 +345,48 @@
     <div class="book-grid" id="suggestions-grid" style="padding-top: 10px;"></div>
   </div>
 </div>
-
-<!-- BOTTOM NAV -->
-<nav class="bottom-nav">
-  <button class="nav-btn" onclick="navTo('home', this)">
-    <span style="font-size: 1.3rem; margin-right: 4px; display: inline-block; transform: translateY(2px);">📚</span> Kho Sách
-  </button>
-  <button class="nav-btn active" onclick="navTo('suggestions', this)">
-    <span style="font-size: 1.3rem; margin-right: 4px; display: inline-block; transform: translateY(2px);">💡</span> Gợi Ý Sách
-  </button>
-</nav>
-
+ 
 <!-- SCREEN: READER -->
 <div id="screen-reader" class="screen" style="max-width: 800px; margin: 0 auto; padding-bottom: 100px;">
-  <button onclick="closeReader()" style="background:none; border:none; font-size:1.2rem; cursor:pointer; margin-bottom:20px; color:var(--muted);">← Quay lại</button>
+  <button id="reader-back-btn" class="reader-back-btn" onclick="closeReader()">
+    <span>←</span> <span id="reader-back-label">Quay lại Kho Sách</span>
+  </button>
   <h2 id="reader-title" class="serif" style="font-size: 2rem; margin-bottom: 5px;">Title</h2>
   <p id="reader-author" style="color: var(--muted); margin-bottom: 30px; font-style: italic;">Author</p>
   <div id="reader-content" style="font-size: 1.1rem; line-height: 1.8;"></div>
 </div>
-
+ 
+<!-- BOTTOM NAV — luôn hiển thị ở tất cả màn hình -->
+<nav class="bottom-nav">
+  <button class="nav-btn" id="nav-home" onclick="navTo('home', this)">
+    <span style="font-size: 1.3rem; margin-right: 4px; display: inline-block; transform: translateY(2px);">📚</span> Kho Sách
+  </button>
+  <button class="nav-btn active" id="nav-suggestions" onclick="navTo('suggestions', this)">
+    <span style="font-size: 1.3rem; margin-right: 4px; display: inline-block; transform: translateY(2px);">💡</span> Gợi Ý Sách
+  </button>
+</nav>
+ 
 <script type="module">
 import { db } from './src/firebase.ts';
 import { collection, getDocs } from 'firebase/firestore';
-
+ 
 let BOOKS = [];
-
-const COLORS = {
-  "5-7": "var(--amber)",
-  "8-10": "var(--emerald)",
-  "11-15": "var(--violet)"
-};
-
+let READABLE_BOOKS = [];
+ 
 const TITLES = {
   "5-7": "👶 Làm Quen & Yêu Sách",
   "8-10": "🧒 Tư Duy & Thói Quen",
   "11-15": "👦 Mở Rộng Nhận Thức"
 };
-
+ 
 // State
-let readingStatus = JSON.parse(localStorage.getItem('readingStatus')) || {};
-let reviews = JSON.parse(localStorage.getItem('reviews')) || {};
-let currentGroup = null;
 let currentFilter = 'All';
-let currentReviewBookId = null;
-
+let prevScreen = 'suggestions'; // Lưu màn hình trước khi mở reader
+ 
 const coverCache = JSON.parse(localStorage.getItem('bookCovers') || '{}');
-
+ 
 async function getBookCover(title, author, id) {
   if (coverCache[id]) return coverCache[id];
-  
   try {
     const query = encodeURIComponent(`intitle:${title}`);
     const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${query}&key=AIzaSyC6b0R_6lwrKQaX7paIFIbkujJRbJRUSog`);
@@ -389,35 +404,30 @@ async function getBookCover(title, author, id) {
   } catch (e) {
     console.error('Error fetching cover:', e);
   }
-  
   const fallback = `https://picsum.photos/seed/${id}/400/600`;
   coverCache[id] = fallback;
   localStorage.setItem('bookCovers', JSON.stringify(coverCache));
   return fallback;
 }
-
+ 
 // Init
 async function init() {
   drawDecorativeBookshelf();
-  
   try {
     const readableSnapshot = await getDocs(collection(db, 'readable_books'));
     READABLE_BOOKS = readableSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    
     const suggestedSnapshot = await getDocs(collection(db, 'suggested_books'));
     BOOKS = suggestedSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   } catch (error) {
     console.error("Error fetching books from Firestore:", error);
   }
-
   renderLibrary();
-  // renderSuggestions is called when a mailbox is opened
 }
-
+ 
 function drawDecorativeBookshelf() {
   const shelf = document.getElementById('hero-bookshelf');
   const colors = ['#D97706', '#059669', '#7C3AED', '#DC2626', '#1B2A1A'];
-  for(let i=0; i<15; i++) {
+  for (let i = 0; i < 15; i++) {
     const book = document.createElement('div');
     book.className = 'book-spine';
     book.style.height = (30 + Math.random() * 30) + 'px';
@@ -426,22 +436,24 @@ function drawDecorativeBookshelf() {
     shelf.appendChild(book);
   }
 }
-
-// Navigation
+ 
+// Navigation — cập nhật active state cho cả nav button và màn hình
 window.navTo = function(screenId, el) {
+  // Nếu đang ở reader và bấm nav, đóng reader trước
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-' + screenId).classList.add('active');
-  
+ 
   document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
-  if(el) el.classList.add('active');
-  
-  if(screenId === 'suggestions') {
-    if(window.closeMailbox) window.closeMailbox();
+  const targetBtn = el || document.getElementById('nav-' + screenId);
+  if (targetBtn) targetBtn.classList.add('active');
+ 
+  if (screenId === 'suggestions') {
+    // Giữ nguyên trạng thái mailbox đang mở (nếu có)
   }
-  
+ 
   window.scrollTo(0, 0);
 }
-
+ 
 window.openMailbox = function(age) {
   currentFilter = age;
   document.getElementById('mailbox-view').style.display = 'none';
@@ -450,23 +462,21 @@ window.openMailbox = function(age) {
   renderSuggestions();
   window.scrollTo(0, 0);
 }
-
+ 
 window.closeMailbox = function() {
   document.getElementById('mailbox-view').style.display = 'block';
   document.getElementById('suggestions-books-view').style.display = 'none';
   currentFilter = 'All';
   document.getElementById('suggestions-grid').innerHTML = '';
 }
-
+ 
 function renderSuggestions() {
   const grid = document.getElementById('suggestions-grid');
   grid.innerHTML = '';
-  
   let booksToRender = BOOKS;
-  if(currentFilter !== 'All') {
+  if (currentFilter !== 'All') {
     booksToRender = BOOKS.filter(b => b.age === currentFilter);
   }
-  
   booksToRender.forEach((book, index) => {
     const card = document.createElement('div');
     card.className = 'book-card stagger-item';
@@ -481,61 +491,85 @@ function renderSuggestions() {
       </div>
     `;
     grid.appendChild(card);
-    
-    getBookCover(book.title, book.author, 's-'+book.id).then(url => {
+    getBookCover(book.title, book.author, 's-' + book.id).then(url => {
       const img = document.getElementById(`cover-s-${book.id}`);
-      if(img) img.src = url;
+      if (img) img.src = url;
     });
   });
 }
-
-let READABLE_BOOKS = [];
-
+ 
 function renderLibrary() {
   const grid = document.getElementById('library-grid');
   grid.innerHTML = '';
-  
   READABLE_BOOKS.forEach(book => {
     const card = document.createElement('div');
     card.className = 'book-card';
     card.style.cursor = 'pointer';
-    card.onclick = () => window.openReader(book.id);
+    card.onclick = () => window.openReader(book.id, 'home');
     card.innerHTML = `
       <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" id="cover-${book.id}" alt="Cover" class="book-cover" referrerPolicy="no-referrer">
       <div class="book-info">
         <h4 class="serif">${book.title}</h4>
         <div class="author">${book.author}</div>
         <div style="margin-top: auto;">
-          <button class="review-btn" style="opacity:1; pointer-events:auto; width:100%;">Đọc ngay</button>
+          <button class="review-btn" style="width:100%;">Đọc ngay</button>
         </div>
       </div>
     `;
     grid.appendChild(card);
-    
     getBookCover(book.title, book.author, book.id).then(url => {
       const img = document.getElementById(`cover-${book.id}`);
-      if(img) img.src = url;
+      if (img) img.src = url;
     });
   });
 }
-
-window.openReader = function(id) {
+ 
+// openReader nhận thêm tham số `from` để biết trở về đâu
+window.openReader = function(id, from = 'home') {
+  // Xác định màn hình hiện tại trước khi chuyển
+  const activeScreen = document.querySelector('.screen.active');
+  prevScreen = from || (activeScreen ? activeScreen.id.replace('screen-', '') : 'home');
+ 
   const book = READABLE_BOOKS.find(b => b.id === id);
+  if (!book) return;
+ 
   document.getElementById('reader-title').innerText = book.title;
   document.getElementById('reader-author').innerText = book.author;
   document.getElementById('reader-content').innerHTML = book.content;
-  
+ 
+  // Cập nhật nhãn nút quay lại
+  const backLabel = document.getElementById('reader-back-label');
+  if (prevScreen === 'home') {
+    backLabel.innerText = 'Quay lại Kho Sách';
+  } else {
+    backLabel.innerText = 'Quay lại Gợi Ý Sách';
+  }
+ 
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-reader').classList.add('active');
+ 
+  // Khi đang ở reader, nav button vẫn hiển thị nhưng không active
+  // (Người dùng có thể bấm nav để thoát reader sang màn hình đó)
+  document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
+ 
   window.scrollTo(0, 0);
 }
-
+ 
+// closeReader trở về màn hình trước đó
 window.closeReader = function() {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-home').classList.add('active');
+  document.getElementById('screen-' + prevScreen).classList.add('active');
+ 
+  // Cập nhật active nav
+  document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
+  const btn = document.getElementById('nav-' + prevScreen);
+  if (btn) btn.classList.add('active');
+ 
+  window.scrollTo(0, 0);
 }
-
+ 
 init();
 </script>
 </body>
 </html>
+ 
