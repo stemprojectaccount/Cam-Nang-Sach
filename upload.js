@@ -61,7 +61,7 @@ const BOOKS = [
   {id:49,title:"Dạy Con Tự Lập",author:"Nhiều tác giả",age:"8-10",cat:"Kỹ năng",desc:"Hướng dẫn trẻ tự chăm sóc bản thân"},
   {id:50,title:"Câu Chuyện Tuổi Thơ",author:"Nhiều tác giả",age:"8-10",cat:"Văn học",desc:"Ký ức đẹp về tuổi thơ"},
 
-  // 11–13 tuổi (25 books)
+  // 11–15 tuổi (25 books)
   {id:51,title:"Totto-chan Bên Cửa Sổ",author:"Tetsuko Kuroyanagi",age:"11-13",cat:"Văn học",desc:"Ngôi trường đặc biệt và sự tự do"},
   {id:52,title:"Không Gia Đình",author:"Hector Malot",age:"11-13",cat:"Văn học",desc:"Hành trình tìm kiếm gia đình của Rémi"},
   {id:53,title:"Anne Tóc Đỏ Dưới Chái Nhà Xanh",author:"L.M. Montgomery",age:"11-13",cat:"Văn học",desc:"Cô bé Anne lạc quan và yêu đời"},

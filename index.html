@@ -277,24 +277,27 @@
 </head>
 <body>
 
-<!-- MAIN SCREEN -->
-<div id="screen-main" class="screen active">
+<!-- SCREEN: HOME -->
+<div id="screen-home" class="screen">
   <div class="hero">
     <div class="bookshelf" id="hero-bookshelf"></div>
+    <h1>Kho Tàng Truyện Cổ</h1>
+    <p>Đọc truyện trực tiếp trên ứng dụng</p>
+  </div>
+  
+  <div class="book-grid" id="library-grid" style="padding-top: 20px;"></div>
+</div>
+
+<!-- SCREEN: SUGGESTIONS -->
+<div id="screen-suggestions" class="screen active">
+  <div class="hero">
     <h1>Cẩm Nang Đọc Sách</h1>
-    <p>Khám phá kho tàng truyện và sách gợi ý</p>
+    <p>Chọn độ tuổi để khám phá hộp thư sách gợi ý</p>
   </div>
   
   <!-- Mailbox View -->
   <div id="mailbox-view">
     <div class="mailbox-grid">
-      <!-- Kho Sách Mailbox -->
-      <div class="mailbox-card" style="border-top: 8px solid var(--primary);" onclick="openMailbox('library')">
-        <span class="mailbox-icon">📚</span>
-        <div class="mailbox-title">Kho Tàng Truyện Cổ</div>
-        <div class="mailbox-age">Đọc trực tiếp</div>
-      </div>
-      <!-- Age Mailboxes -->
       <div class="mailbox-card" style="border-top: 8px solid var(--amber);" onclick="openMailbox('5-7')">
         <span class="mailbox-icon">👶</span>
         <div class="mailbox-title">Làm Quen & Yêu Sách</div>
@@ -308,7 +311,7 @@
       <div class="mailbox-card" style="border-top: 8px solid var(--violet);" onclick="openMailbox('11-13')">
         <span class="mailbox-icon">👦</span>
         <div class="mailbox-title">Mở Rộng Nhận Thức</div>
-        <div class="mailbox-age">11-13 tuổi</div>
+        <div class="mailbox-age">11-15 tuổi</div>
       </div>
       <div class="mailbox-card" style="border-top: 8px solid var(--crimson);" onclick="openMailbox('14-15')">
         <span class="mailbox-icon">🧑</span>
@@ -319,14 +322,24 @@
   </div>
 
   <!-- Books View -->
-  <div id="books-view" style="display: none;">
+  <div id="suggestions-books-view" style="display: none;">
     <button onclick="closeMailbox()" style="background:none; border:none; font-size:1.1rem; cursor:pointer; margin-bottom:20px; color:var(--muted); font-weight: 700; display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 9999px; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
       <span style="font-size: 1.2rem;">←</span> Trở về Cẩm Nang
     </button>
     <h2 id="mailbox-active-title" class="serif" style="font-size: 1.8rem; margin-bottom: 20px; color: var(--ink);">...</h2>
-    <div class="book-grid" id="books-grid" style="padding-top: 10px;"></div>
+    <div class="book-grid" id="suggestions-grid" style="padding-top: 10px;"></div>
   </div>
 </div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-btn" onclick="navTo('home', this)">
+    <span style="font-size: 1.3rem; margin-right: 4px; display: inline-block; transform: translateY(2px);">📚</span> Kho Sách
+  </button>
+  <button class="nav-btn active" onclick="navTo('suggestions', this)">
+    <span style="font-size: 1.3rem; margin-right: 4px; display: inline-block; transform: translateY(2px);">💡</span> Gợi Ý Sách
+  </button>
+</nav>
 
 <!-- SCREEN: READER -->
 <div id="screen-reader" class="screen" style="max-width: 800px; margin: 0 auto; padding-bottom: 100px;">
@@ -345,14 +358,14 @@ let BOOKS = [];
 const COLORS = {
   "5-7": "var(--amber)",
   "8-10": "var(--emerald)",
-  "11-13": "var(--violet)",
+  "11-15": "var(--violet)",
   "14-15": "var(--crimson)"
 };
 
 const TITLES = {
   "5-7": "👶 Làm Quen & Yêu Sách",
   "8-10": "🧒 Tư Duy & Thói Quen",
-  "11-13": "👦 Mở Rộng Nhận Thức",
+  "11-15": "👦 Mở Rộng Nhận Thức",
   "14-15": "🧑 Định Hình Bản Thân"
 };
 
@@ -405,6 +418,9 @@ async function init() {
   } catch (error) {
     console.error("Error fetching books from Firestore:", error);
   }
+
+  renderLibrary();
+  // renderSuggestions is called when a mailbox is opened
 }
 
 function drawDecorativeBookshelf() {
@@ -420,31 +436,45 @@ function drawDecorativeBookshelf() {
   }
 }
 
-window.openMailbox = function(type) {
-  document.getElementById('mailbox-view').style.display = 'none';
-  document.getElementById('books-view').style.display = 'block';
+// Navigation
+window.navTo = function(screenId, el) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + screenId).classList.add('active');
   
-  if (type === 'library') {
-    document.getElementById('mailbox-active-title').innerText = 'Kho Tàng Truyện Cổ';
-    renderLibraryBooks();
-  } else {
-    document.getElementById('mailbox-active-title').innerText = TITLES[type] || 'Gợi Ý Sách';
-    renderSuggestedBooks(type);
+  document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('active'));
+  if(el) el.classList.add('active');
+  
+  if(screenId === 'suggestions') {
+    if(window.closeMailbox) window.closeMailbox();
   }
+  
+  window.scrollTo(0, 0);
+}
+
+window.openMailbox = function(age) {
+  currentFilter = age;
+  document.getElementById('mailbox-view').style.display = 'none';
+  document.getElementById('suggestions-books-view').style.display = 'block';
+  document.getElementById('mailbox-active-title').innerText = TITLES[age] || 'Gợi Ý Sách';
+  renderSuggestions();
   window.scrollTo(0, 0);
 }
 
 window.closeMailbox = function() {
   document.getElementById('mailbox-view').style.display = 'block';
-  document.getElementById('books-view').style.display = 'none';
-  document.getElementById('books-grid').innerHTML = '';
+  document.getElementById('suggestions-books-view').style.display = 'none';
+  currentFilter = 'All';
+  document.getElementById('suggestions-grid').innerHTML = '';
 }
 
-function renderSuggestedBooks(age) {
-  const grid = document.getElementById('books-grid');
+function renderSuggestions() {
+  const grid = document.getElementById('suggestions-grid');
   grid.innerHTML = '';
   
-  const booksToRender = BOOKS.filter(b => b.age === age);
+  let booksToRender = BOOKS;
+  if(currentFilter !== 'All') {
+    booksToRender = BOOKS.filter(b => b.age === currentFilter);
+  }
   
   booksToRender.forEach((book, index) => {
     const card = document.createElement('div');
@@ -470,14 +500,13 @@ function renderSuggestedBooks(age) {
 
 let READABLE_BOOKS = [];
 
-function renderLibraryBooks() {
-  const grid = document.getElementById('books-grid');
+function renderLibrary() {
+  const grid = document.getElementById('library-grid');
   grid.innerHTML = '';
   
-  READABLE_BOOKS.forEach((book, index) => {
+  READABLE_BOOKS.forEach(book => {
     const card = document.createElement('div');
-    card.className = 'book-card stagger-item';
-    card.style.animationDelay = `${index * 0.08}s`;
+    card.className = 'book-card';
     card.style.cursor = 'pointer';
     card.onclick = () => window.openReader(book.id);
     card.innerHTML = `
@@ -512,7 +541,7 @@ window.openReader = function(id) {
 
 window.closeReader = function() {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-main').classList.add('active');
+  document.getElementById('screen-home').classList.add('active');
 }
 
 init();
