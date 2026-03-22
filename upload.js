@@ -61,7 +61,7 @@ const BOOKS = [
   {id:49,title:"Dạy Con Tự Lập",author:"Nhiều tác giả",age:"8-10",cat:"Kỹ năng",desc:"Hướng dẫn trẻ tự chăm sóc bản thân"},
   {id:50,title:"Câu Chuyện Tuổi Thơ",author:"Nhiều tác giả",age:"8-10",cat:"Văn học",desc:"Ký ức đẹp về tuổi thơ"},
 
-  // 11–15 tuổi (25 books)
+  // 11–15 tuổi (50 books)
   {id:51,title:"Totto-chan Bên Cửa Sổ",author:"Tetsuko Kuroyanagi",age:"11-13",cat:"Văn học",desc:"Ngôi trường đặc biệt và sự tự do"},
   {id:52,title:"Không Gia Đình",author:"Hector Malot",age:"11-13",cat:"Văn học",desc:"Hành trình tìm kiếm gia đình của Rémi"},
   {id:53,title:"Anne Tóc Đỏ Dưới Chái Nhà Xanh",author:"L.M. Montgomery",age:"11-13",cat:"Văn học",desc:"Cô bé Anne lạc quan và yêu đời"},
@@ -87,8 +87,6 @@ const BOOKS = [
   {id:73,title:"Những Tấm Lòng Cao Cả",author:"E. De Amicis",age:"11-13",cat:"Văn học",desc:"Câu chuyện cảm động về tình người"},
   {id:74,title:"Bí Mật Của Naoko",author:"Nhiều tác giả",age:"11-13",cat:"Văn học",desc:"Câu chuyện về tình bạn và bí mật"},
   {id:75,title:"Câu Chuyện Nghệ Thuật",author:"Nhiều tác giả",age:"11-13",cat:"Văn học",desc:"Giới thiệu về nghệ thuật sáng tạo"},
-
-  // 14–15 tuổi (25 books)
   {id:76,title:"Những Người Khốn Khổ",author:"Victor Hugo",age:"14-15",cat:"Văn học",desc:"Kiệt tác về tình người và công lý"},
   {id:77,title:"Ông Già Và Biển Cả",author:"Ernest Hemingway",age:"14-15",cat:"Văn học",desc:"Ý chí con người trước thiên nhiên"},
   {id:78,title:"Giết Con Chim Nhại",author:"Harper Lee",age:"14-15",cat:"Văn học",desc:"Công lý và phân biệt chủng tộc"},
