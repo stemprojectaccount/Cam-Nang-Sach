@@ -353,9 +353,14 @@
   </button>
   <h2 id="reader-title" class="serif" style="font-size: 2rem; margin-bottom: 5px;">Title</h2>
   <p id="reader-author" style="color: var(--muted); margin-bottom: 30px; font-style: italic;">Author</p>
+  
   <div id="reader-content" style="font-size: 1.1rem; line-height: 1.8;"></div>
+  
+  <div id="pdf-reader-container" style="display: none; margin-top: 20px; height: 80vh; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+    <iframe id="pdf-iframe" style="width: 100%; height: 100%; border: none;"></iframe>
+  </div>
 </div>
- 
+
 <!-- BOTTOM NAV — luôn hiển thị ở tất cả màn hình -->
 <nav class="bottom-nav">
   <button class="nav-btn" id="nav-home" onclick="navTo('home', this)">
@@ -368,7 +373,7 @@
  
 <script type="module">
 import { db } from './src/firebase.ts';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
  
 let BOOKS = [];
 let READABLE_BOOKS = [];
@@ -383,28 +388,74 @@ const TITLES = {
 let currentFilter = 'All';
 let prevScreen = 'suggestions'; // Lưu màn hình trước khi mở reader
  
-const coverCache = JSON.parse(localStorage.getItem('bookCovers') || '{}');
+let coverCache = JSON.parse(localStorage.getItem('bookCovers') || '{}');
+// Invalidate old picsum cache
+let cacheChanged = false;
+for (const key in coverCache) {
+  if (coverCache[key].includes('picsum.photos')) {
+    delete coverCache[key];
+    cacheChanged = true;
+  }
+}
+if (cacheChanged) {
+  localStorage.setItem('bookCovers', JSON.stringify(coverCache));
+}
  
 async function getBookCover(title, author, id) {
   if (coverCache[id]) return coverCache[id];
+  
+  // 1. Try Google Books API with a broader query
   try {
-    const query = encodeURIComponent(`intitle:${title}`);
-    const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${query}&key=AIzaSyC6b0R_6lwrKQaX7paIFIbkujJRbJRUSog`);
-    const data = await res.json();
-    if (data.items && data.items.length > 0) {
-      for (let item of data.items) {
-        if (item.volumeInfo && item.volumeInfo.imageLinks && item.volumeInfo.imageLinks.thumbnail) {
-          const url = item.volumeInfo.imageLinks.thumbnail.replace('http:', 'https:');
-          coverCache[id] = url;
-          localStorage.setItem('bookCovers', JSON.stringify(coverCache));
-          return url;
+    const query = encodeURIComponent(`${title} ${author}`);
+    const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${query}&maxResults=3`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.items && data.items.length > 0) {
+        for (let item of data.items) {
+          if (item.volumeInfo && item.volumeInfo.imageLinks && item.volumeInfo.imageLinks.thumbnail) {
+            let url = item.volumeInfo.imageLinks.thumbnail.replace('http:', 'https:');
+            // Try to get a higher resolution image
+            url = url.replace('&edge=curl', '');
+            coverCache[id] = url;
+            localStorage.setItem('bookCovers', JSON.stringify(coverCache));
+            return url;
+          }
         }
       }
     }
   } catch (e) {
-    console.error('Error fetching cover:', e);
+    // Silently fallback if Google Books fails
   }
-  const fallback = `https://picsum.photos/seed/${id}/400/600`;
+
+  // 2. Try Open Library API as fallback
+  try {
+    const query = encodeURIComponent(title);
+    const res = await fetch(`https://openlibrary.org/search.json?title=${query}&limit=3`);
+    if (res.ok) {
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const data = await res.json();
+        if (data.docs && data.docs.length > 0) {
+          for (let doc of data.docs) {
+            if (doc.cover_i) {
+              const url = `https://covers.openlibrary.org/b/id/${doc.cover_i}-L.jpg`;
+              coverCache[id] = url;
+              localStorage.setItem('bookCovers', JSON.stringify(coverCache));
+              return url;
+            }
+          }
+        }
+      }
+    }
+  } catch (e) {
+    // Silently fallback if Open Library fails
+  }
+  
+  // 3. Fallback to a generated placeholder with the book title
+  const colors = ['D97706', '059669', '7C3AED', 'DC2626', '2563EB', '0891B2', '4F46E5'];
+  const bgColor = colors[Math.floor(Math.random() * colors.length)];
+  const fallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(title)}&background=${bgColor}&color=fff&size=400&font-size=0.15&length=3`;
+  
   coverCache[id] = fallback;
   localStorage.setItem('bookCovers', JSON.stringify(coverCache));
   return fallback;
@@ -417,7 +468,14 @@ async function init() {
     const readableSnapshot = await getDocs(collection(db, 'readable_books'));
     READABLE_BOOKS = readableSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     const suggestedSnapshot = await getDocs(collection(db, 'suggested_books'));
-    BOOKS = suggestedSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    BOOKS = suggestedSnapshot.docs.map(doc => {
+      let data = doc.data();
+      // Map old age categories to the new combined category
+      if (data.age === '11-13' || data.age === '14-15') {
+        data.age = '11-15';
+      }
+      return { id: doc.id, ...data };
+    });
   } catch (error) {
     console.error("Error fetching books from Firestore:", error);
   }
@@ -481,13 +539,18 @@ function renderSuggestions() {
     const card = document.createElement('div');
     card.className = 'book-card stagger-item';
     card.style.animationDelay = `${index * 0.08}s`;
+    card.style.cursor = 'pointer';
+    card.onclick = () => window.openReader(book.id, 'suggestions');
     card.innerHTML = `
       <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" id="cover-s-${book.id}" alt="Cover" class="book-cover" referrerPolicy="no-referrer">
       <div class="book-info">
         <span class="cat-badge">${book.cat}</span>
         <h4 class="serif">${book.title}</h4>
         <div class="author">${book.author}</div>
-        <div style="font-size:0.85rem; color:var(--muted); margin-bottom:15px;">${book.desc}</div>
+        <div style="font-size:0.85rem; color:var(--muted); margin-bottom:15px; flex-grow: 1;">${book.desc}</div>
+        <div style="margin-top: auto;">
+          <button class="review-btn" style="width:100%;">Đọc ngay</button>
+        </div>
       </div>
     `;
     grid.appendChild(card);
@@ -530,12 +593,45 @@ window.openReader = function(id, from = 'home') {
   const activeScreen = document.querySelector('.screen.active');
   prevScreen = from || (activeScreen ? activeScreen.id.replace('screen-', '') : 'home');
  
-  const book = READABLE_BOOKS.find(b => b.id === id);
+  let book = READABLE_BOOKS.find(b => b.id === id);
+  if (!book) {
+    book = BOOKS.find(b => b.id === id);
+  }
   if (!book) return;
  
   document.getElementById('reader-title').innerText = book.title;
   document.getElementById('reader-author').innerText = book.author;
-  document.getElementById('reader-content').innerHTML = book.content;
+  
+  const contentEl = document.getElementById('reader-content');
+  const pdfContainer = document.getElementById('pdf-reader-container');
+  const pdfIframe = document.getElementById('pdf-iframe');
+  
+  // Reset states
+  contentEl.style.display = 'none';
+  pdfContainer.style.display = 'none';
+  pdfIframe.src = '';
+  
+  // Check if PDF exists in Firestore
+  if (book.pdfUrl) {
+    pdfContainer.style.display = 'block';
+    
+    // Tự động chuyển đổi link Google Drive sang dạng preview
+    let finalPdfUrl = book.pdfUrl;
+    if (finalPdfUrl.includes('drive.google.com/file/d/')) {
+      // Thay thế /view... bằng /preview
+      finalPdfUrl = finalPdfUrl.replace(/\/view.*$/, '/preview');
+    }
+    
+    pdfIframe.src = finalPdfUrl;
+  } else {
+    // Fallback to text content
+    if (book.content) {
+      contentEl.innerHTML = book.content;
+    } else {
+      contentEl.innerHTML = '<p style="color: var(--muted); font-style: italic; text-align: center; padding: 40px 0;">Nội dung văn bản chưa được cập nhật cho cuốn sách này.</p>';
+    }
+    contentEl.style.display = 'block';
+  }
  
   // Cập nhật nhãn nút quay lại
   const backLabel = document.getElementById('reader-back-label');
@@ -554,7 +650,7 @@ window.openReader = function(id, from = 'home') {
  
   window.scrollTo(0, 0);
 }
- 
+
 // closeReader trở về màn hình trước đó
 window.closeReader = function() {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));

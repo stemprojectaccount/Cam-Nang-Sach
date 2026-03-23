@@ -149,10 +149,14 @@ async function upload() {
   console.log('Readable books uploaded.');
   
   for (const book of BOOKS) {
+    let age = book.age;
+    if (age === '11-13' || age === '14-15') {
+      age = '11-15';
+    }
     await setDoc(doc(db, 'suggested_books', book.id.toString()), {
       title: book.title,
       author: book.author,
-      age: book.age,
+      age: age,
       cat: book.cat,
       desc: book.desc
     });
